@@ -18,9 +18,7 @@
     "sdkVersion": "3",
     "shortName": "Draw Bitmap",
     "targetPlatforms": [
-        "aplite",
-        "basalt",
-        "chalk"
+        "basalt"
     ],
     "uuid": "2ff7fa04-6011-4a98-8a3b-a826a4b899f8",
     "versionLabel": "2.0",

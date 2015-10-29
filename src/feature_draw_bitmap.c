@@ -5,14 +5,22 @@ static Window *s_main_window;
 static Layer *s_image_layer;
 static GBitmap *s_image;
 static GBitmap *t_image[64];
+static unsigned char tilemap[256];
+static unsigned char score[6];
 
 static void layer_update_callback(Layer *layer, GContext* ctx) {
-  graphics_draw_bitmap_in_rect(ctx, t_image[13], GRect(30, 30, 12, 12));
-  graphics_draw_bitmap_in_rect(ctx, t_image[7], GRect(42, 30, 12, 12));
-  graphics_draw_bitmap_in_rect(ctx, t_image[15], GRect(54, 30, 12, 12));
-  graphics_draw_bitmap_in_rect(ctx, t_image[3], GRect(66, 30, 12, 12));
 
-  graphics_draw_bitmap_in_rect(ctx, t_image[25], GRect(100, 100, 14, 21));
+	// Update Tilemap
+	for(int i=0;i<12;i++){
+		for(int j=0;j<12;j++){
+  			graphics_draw_bitmap_in_rect(ctx, t_image[tilemap[(j*12)+i]], GRect(i*12,j*12, 12, 12));			
+		}
+	}
+	
+	// Update Score
+	for(int i=0;i<5;i++){
+			graphics_draw_bitmap_in_rect(ctx, t_image[score[i]+24], GRect(i*14,144, 14, 24));
+	}
 
 }
 
@@ -27,12 +35,22 @@ static void main_window_load(Window *window) {
 	// Define bitmap
   s_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_NO_LITTER);
 
-	// Define tiles (2 rows of 12 tiles at 12x12 px)
+	// Define tiles (2 rows of 12 tiles at 12x12 px and 1 row of 14x23)
 	for(int i=0;i<12;i++){
 			t_image[i] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*12, 0, 12, 12));			
 			t_image[i+12] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*12, 12, 12, 12));			
-			if(i<10) t_image[i+24] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*14, 24, 14, 21));
-	}	
+			if(i<10) t_image[i+24] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*14, 24, 14, 24));
+	}
+	
+	// Assign some data to tile map
+	for(int i=0;i<144;i++){
+			tilemap[i]=0;		
+	}
+	for(int i=0;i<12;i++){
+			tilemap[i]=1;
+			tilemap[i*12]=2;
+	}
+	tilemap[78]=11;
 }
 
 static void main_window_unload(Window *window) {
