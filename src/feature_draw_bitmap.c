@@ -15,12 +15,35 @@ static int pdx;
 static int pdy;
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-		px+=pdx;
-		py+=pdy;
+		// Only move if allowed
+		if(((px+pdx)<23)&&((px+pdx)>0)) px+=pdx;
+		if(((py+pdy)<23)&&((py+pdy)>0)) py+=pdy;
+	
+		// Check if game over!
+		if(tilemap[px+(py*24)]>=100){
+				// game over!
+		}else{
+				// Add score - do not count previously added tiles
+				int tiles=tilemap[px+(py*24)];
+				if(tiles<10){
+						score[0]+=tiles+1;
+						for(int i=0;i<5;i++){
+								if(score[i]>9){
+										score[i+1]++;
+										score[i]-=10;
+								}
+						}
+				}
+				
+				// mark tile as safe.
+				tilemap[px+(py*24)]=10;
+		}
+	
+		// Redraw Graphics
     layer_mark_dirty(s_image_layer);
 }
 
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 		if(pdx==1){
 				pdx=0;
 				pdy=1;
@@ -37,7 +60,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
     layer_mark_dirty(s_image_layer);
 }
 
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 		if(pdx==1){
 				pdx=0;
 				pdy=-1;
@@ -110,15 +133,15 @@ static void initGameBoard()
 
 	// Clear all edges of tilemap
 	for(int i=0;i<24;i++){
-			tilemap[i]=1;
-			tilemap[(23*24)+i]=1;
-			tilemap[i*24]=1;
-			tilemap[(i*24)+23]=1;
+			tilemap[i]=10;
+			tilemap[(23*24)+i]=10;
+			tilemap[i*24]=10;
+			tilemap[(i*24)+23]=10;
 	}
 
 	// Clear Score
 	for(int i=0;i<6;i++){
-			score[i]=i;
+			score[i]=0;
 	}	
 	
 	// Move player to center of screen
