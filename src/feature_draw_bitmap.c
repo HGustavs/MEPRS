@@ -14,14 +14,71 @@ static int py;
 static int pdx;
 static int pdy;
 
+// Clear playfield and init scoreboard
+static void initGameBoard()
+{
+	// Assign some data to tile map
+	for(int i=0;i<576;i++){
+			tilemap[i]=0;		
+	}
+
+	// Clear all edges of tilemap
+	for(int i=0;i<24;i++){
+			tilemap[i]=10;
+			tilemap[(23*24)+i]=10;
+			tilemap[i*24]=10;
+			tilemap[(i*24)+23]=10;
+	}
+
+	// Clear Score
+	for(int i=0;i<6;i++){
+			score[i]=0;
+	}	
+	
+	// Move player to center of screen
+	px=12;
+	py=12;
+	pdx=1;
+	pdy=0;
+
+	// Randomize mines
+	int tx,ty;
+	for(int i=0;i<300;i++){
+			tx=1+(rand()%22);
+			ty=1+(rand()%22);
+			tilemap[(tx*24)+ty]=100;
+	}
+
+	// Secure Player Position
+	tilemap[(12*24)+12]=10;
+
+	// Compute Numbers
+	for(int i=1;i<23;i++){
+		for(int j=1;j<23;j++){
+			int val=0;
+			for(int k=-1;k<=1;k++){
+				for(int l=-1;l<=1;l++){
+						if(tilemap[((j+l)*24)+i+k]>=100){
+								val++;
+						}
+				}
+			}
+			tilemap[(j*24)+i]+=val;	
+		}
+	}
+	tilemap[(12*24)+12]=10;
+
+}
+
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 		// Only move if allowed
 		if(((px+pdx)<23)&&((px+pdx)>0)) px+=pdx;
 		if(((py+pdy)<23)&&((py+pdy)>0)) py+=pdy;
-	
+
 		// Check if game over!
 		if(tilemap[px+(py*24)]>=100){
 				// game over!
+				initGameBoard();
 		}else{
 				// Add score - do not count previously added tiles
 				int tiles=tilemap[px+(py*24)];
@@ -34,7 +91,6 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 								}
 						}
 				}
-				
 				// mark tile as safe.
 				tilemap[px+(py*24)]=10;
 		}
@@ -121,41 +177,6 @@ static void layer_update_callback(Layer *layer, GContext* ctx) {
 	for(int i=0;i<5;i++){
 			graphics_draw_bitmap_in_rect(ctx, t_image[score[i]+24], GRect(94-(i*14),144, 14, 24));
 	}
-}
-
-// Clear playfield and init scoreboard
-static void initGameBoard()
-{
-	// Assign some data to tile map
-	for(int i=0;i<576;i++){
-			tilemap[i]=0;		
-	}
-
-	// Clear all edges of tilemap
-	for(int i=0;i<24;i++){
-			tilemap[i]=10;
-			tilemap[(23*24)+i]=10;
-			tilemap[i*24]=10;
-			tilemap[(i*24)+23]=10;
-	}
-
-	// Clear Score
-	for(int i=0;i<6;i++){
-			score[i]=0;
-	}	
-	
-	// Move player to center of screen
-	px=12;
-	py=12;
-	pdx=1;
-	pdy=0;
-
-	// Randomize mines
-	tilemap[(14*24)+13]=5;
-	tilemap[(16*24)+13]=5;
-	tilemap[(16*24)+15]=5;
-	
-	// Compute Numbers
 }
 
 static void main_window_load(Window *window) {
