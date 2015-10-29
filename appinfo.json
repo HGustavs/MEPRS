@@ -1,0 +1,30 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Pebble Technology",
+    "longName": "Draw Bitmap",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/no_litter_crop.png",
+                "name": "IMAGE_NO_LITTER",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Draw Bitmap",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "2ff7fa04-6011-4a98-8a3b-a826a4b899f8",
+    "versionLabel": "2.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
