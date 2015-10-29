@@ -8,9 +8,57 @@ static GBitmap *t_image[64];
 static unsigned char tilemap[576];
 static unsigned char score[6];
 
-// Player coordinate
+// Player coordinate and player direction
 static int px;
 static int py;
+static int pdx;
+static int pdy;
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+		px+=pdx;
+		py+=pdy;
+    layer_mark_dirty(s_image_layer);
+}
+
+static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+		if(pdx==1){
+				pdx=0;
+				pdy=1;
+		}else if(pdx==-1){
+				pdx=0;
+				pdy=-1;
+		}else if(pdy==1){
+				pdx=-1;
+				pdy=0;
+		}else if(pdy==-1){
+				pdx=1;
+				pdy=0;
+		}
+    layer_mark_dirty(s_image_layer);
+}
+
+static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+		if(pdx==1){
+				pdx=0;
+				pdy=-1;
+		}else if(pdx==-1){
+				pdx=0;
+				pdy=1;
+		}else if(pdy==1){
+				pdx=1;
+				pdy=0;
+		}else if(pdy==-1){
+				pdx=-1;
+				pdy=0;
+		}
+    layer_mark_dirty(s_image_layer);
+}
+
+static void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+}
 
 static void layer_update_callback(Layer *layer, GContext* ctx) {
 	// Update Tilemap
@@ -21,10 +69,10 @@ static void layer_update_callback(Layer *layer, GContext* ctx) {
 	
 	cx=px-6;
 	cy=py-6;
-	if(cx<6) cx=6;
-	if(cx>18) cx=18;
-	if(cy<6) cy=6;
-	if(cy>18) cy=18;	
+	if(cx<0) cx=0;
+	if(cx>12) cx=12;
+	if(cy<0) cy=0;
+	if(cy>12) cy=12;	
 	
 	// Y coordinate first, loop over x coordinate
 	for(int j=0;j<12;j++){
@@ -32,6 +80,8 @@ static void layer_update_callback(Layer *layer, GContext* ctx) {
 		for(int i=0;i<12;i++){
 				tileno=tilemap[(cy*24)+ccx];
 				if(tileno>100) tileno=tileno-100;
+				if((ccx==px)&&(cy==py)) tileno=11;
+				if((ccx==(px+pdx))&&(cy==(py+pdy))) tileno+=12;
   			graphics_draw_bitmap_in_rect(ctx, t_image[tileno], GRect(i*12,j*12, 12, 12));			
 				ccx++;
 		}
@@ -74,14 +124,13 @@ static void initGameBoard()
 	// Move player to center of screen
 	px=12;
 	py=12;
+	pdx=1;
+	pdy=0;
 
 	// Randomize mines
 	tilemap[(14*24)+13]=5;
 	tilemap[(16*24)+13]=5;
 	tilemap[(16*24)+15]=5;
-	
-	tilemap[(py*24)+px]=11;
-	
 	
 	// Compute Numbers
 }
@@ -125,7 +174,8 @@ static void main_window_unload(Window *window) {
 
 static void init() {
   s_main_window = window_create();
-  window_set_window_handlers(s_main_window, (WindowHandlers) {
+  window_set_click_config_provider(s_main_window, click_config_provider);
+	window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload,
   });
