@@ -16,8 +16,19 @@ static int px;
 static int py;
 static int pdx;
 static int pdy;
-static int state;
+static int state=0;
 int level;
+
+// Bitmap garbage collection
+int bitmapcnt=0;
+
+// Garbage collected sprite creation
+static GBitmap* makeSprite(const GBitmap * base_bitmap, GRect sub_rect)
+{
+	bitmapcnt++;
+//	APP_LOG(APP_LOG_LEVEL_DEBUG, "Loop index now %d", bitmapcnt);
+	return gbitmap_create_as_sub_bitmap(base_bitmap,sub_rect);
+}
 
 static int comparescore()
 {
@@ -177,10 +188,33 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+//---------------------------------------------------------------------------------//
+// layer_update_callback
+//---------------------------------------------------------------------------------//
+// Called when the graphics need to be updated
+//---------------------------------------------------------------------------------//
+
 static void layer_update_callback(Layer *layer, GContext* ctx) {
 	
 	if(state==0){
 			// Draw Logo and High Scores
+			graphics_draw_bitmap_in_rect(ctx, t_image[37], GRect(0,0, 144, 42));			
+			
+			// Draw High Scores for all 5 levels
+			for(int i=0;i<5;i++){
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i]+24], GRect(130-(i*14),138, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+5]+24], GRect(130-(i*14),114, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+10]+24], GRect(130-(i*14),90, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+15]+24], GRect(130-(i*14),66, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+20]+24], GRect(130-(i*14),42, 14, 24));
+					
+					graphics_draw_bitmap_in_rect(ctx, t_image[34], GRect(0,42+(i*24), 34, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[34], GRect(i*30,162, 30, 6));
+ 					graphics_draw_bitmap_in_rect(ctx, t_image[34], GRect(62,42+(i*24), 12, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[35], GRect(34,42+(i*24), 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[i+25], GRect(48,42+(i*24), 14, 24));
+			}
+			graphics_draw_bitmap_in_rect(ctx, t_image[38], GRect(0,42+(level*24), 34, 24));		
 	}else if(state>0){
 			// Update Tilemap
 			int cx;
@@ -246,14 +280,16 @@ static void main_window_load(Window *window) {
 
 	// Define tiles (2 rows of 12 tiles at 12x12 px and 1 row of 14x23)
 	for(int i=0;i<12;i++){
-			t_image[i] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*12, 0, 12, 12));			
-			t_image[i+12] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*12, 12, 12, 12));			
-			if(i<10) t_image[i+24] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*14, 24, 14, 24));
-			if(i<3) t_image[i+34] = gbitmap_create_as_sub_bitmap(s_image, GRect(i*14, 48, 14, 24));
+			t_image[i] = makeSprite(s_image, GRect(i*12, 0, 12, 12));			
+			t_image[i+12] = makeSprite(s_image, GRect(i*12, 12, 12, 12));			
+			if(i<10) t_image[i+24] = makeSprite(s_image, GRect(i*14, 24, 14, 24));
+			if(i<3) t_image[i+34] = makeSprite(s_image, GRect(i*14, 48, 14, 24));
 	}
+	t_image[37]=makeSprite(s_image, GRect(0, 72, 144, 42));
+	t_image[38]=makeSprite(s_image, GRect(0, 129, 33, 23));
 	
 	// Prepare for new game
-	state=1;
+	state=0;
 	initGameBoard();
 
 }
@@ -261,7 +297,7 @@ static void main_window_load(Window *window) {
 static void main_window_unload(Window *window) {
 	// Deallocate tiles
 	for(int i=0;i<34;i++){
-			 gbitmap_destroy(t_image[i]);
+			 gbitmap_destroy(t_image[bitmapcnt]);
 	}
 	
 	// Deallocate bitmap
