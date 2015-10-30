@@ -34,6 +34,9 @@ static int comparescore()
 {
 		int scored=(score[0])+(10*score[1])+(100*score[2])+(1000*score[3])+(1000*score[4]);
 		int scorel=(hiscore[(level*5)+0])+(10*hiscore[(level*5)+1])+(100*hiscore[(level*5)+2])+(1000*hiscore[(level*5)+3])+(1000*hiscore[(level*5)+4]);	
+		
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "Loop index now %d %d", scored, scorel);
+	
 		return (scored>scorel);
 }
 
@@ -41,8 +44,8 @@ static int comparescore()
 static void initGameBoard()
 {
 	// Read High Score.... from persistent storage (or clear it)
-	//	if (persist_exists(PERSIST_KEY_SCORE)) {
-	if (0) {	
+	if (persist_exists(PERSIST_KEY_SCORE)) {
+	//if (0) {	
 			persist_read_data(PERSIST_KEY_SCORE, hiscore, 25);
 	}else{
 			for(int i=0;i<25;i++){
@@ -126,6 +129,12 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 						state=2;
 					
 						// Update hiscores
+						if(comparescore()){
+								for(int i=0;i<5;i++){
+										hiscore[(level*5)+i]=score[i];
+										APP_LOG(APP_LOG_LEVEL_DEBUG, "Assign %d %d %d", i, score[i], hiscore[(level*5)+i]);
+								}
+						}
 					
 						// Write score
 						persist_write_data(PERSIST_KEY_SCORE, &hiscore, 25);
@@ -216,11 +225,12 @@ static void layer_update_callback(Layer *layer, GContext* ctx) {
 			
 			// Draw High Scores for all 5 levels
 			for(int i=0;i<5;i++){
-					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i]+24], GRect(130-(i*14),138, 14, 24));
-					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+5]+24], GRect(130-(i*14),114, 14, 24));
+
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i]+24], GRect(130-(i*14),42, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+5]+24], GRect(130-(i*14),66, 14, 24));
 					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+10]+24], GRect(130-(i*14),90, 14, 24));
-					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+15]+24], GRect(130-(i*14),66, 14, 24));
-					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+20]+24], GRect(130-(i*14),42, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+15]+24], GRect(130-(i*14),114, 14, 24));
+					graphics_draw_bitmap_in_rect(ctx, t_image[hiscore[i+20]+24], GRect(130-(i*14),138, 14, 24));
 					
 					graphics_draw_bitmap_in_rect(ctx, t_image[34], GRect(0,42+(i*24), 34, 24));
 					graphics_draw_bitmap_in_rect(ctx, t_image[34], GRect(i*30,162, 30, 6));
