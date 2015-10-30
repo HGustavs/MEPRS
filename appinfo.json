@@ -3,11 +3,17 @@
     "capabilities": [
         ""
     ],
-    "companyName": "Pebble Technology",
-    "longName": "Draw Bitmap",
+    "companyName": "HGustavs",
+    "longName": "MERPS - Mine Sweepers",
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/MPRS_Icon.png",
+                "menuIcon": true,
+                "name": "MEPRS_ICON",
+                "type": "png"
+            },
             {
                 "file": "images/no_litter_crop.png",
                 "name": "IMAGE_NO_LITTER",
@@ -16,12 +22,12 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Draw Bitmap",
+    "shortName": "MEPRS",
     "targetPlatforms": [
         "basalt"
     ],
     "uuid": "2ff7fa04-6011-4a98-8a3b-a826a4b899f8",
-    "versionLabel": "2.0",
+    "versionLabel": "1.00",
     "watchapp": {
         "watchface": false
     }
