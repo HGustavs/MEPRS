@@ -76,7 +76,15 @@ static void initGameBoard()
 
 	// Randomize mines
 	int tx,ty;
-	for(int i=0;i<70;i++){
+	int minecount;
+
+	if(level==0) minecount=60;
+	if(level==1) minecount=100;
+	if(level==2) minecount=150;
+	if(level==3) minecount=200;
+	if(level==4) minecount=300;
+	
+	for(int i=0;i<minecount;i++){
 			tx=1+(rand()%22);
 			ty=1+(rand()%22);
 			tilemap[(tx*24)+ty]=100;
