@@ -17,7 +17,7 @@ static int py;
 static int pdx;
 static int pdy;
 static int state=0;
-int level;
+int level=0;
 
 // Bitmap garbage collection
 int bitmapcnt=0;
@@ -40,8 +40,6 @@ static int comparescore()
 // Clear playfield and init scoreboard
 static void initGameBoard()
 {
-	level=0;
-	
 	// Read High Score.... from persistent storage (or clear it)
 	//	if (persist_exists(PERSIST_KEY_SCORE)) {
 	if (0) {	
@@ -106,7 +104,10 @@ static void initGameBoard()
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-		if(state==1){
+	if(state==0){
+			state=1;
+			initGameBoard();
+	}	else if(state==1){
 				// Only move if allowed
 				if(((px+pdx)<23)&&((px+pdx)>0)) px+=pdx;
 				if(((py+pdy)<23)&&((py+pdy)>0)) py+=pdy;
@@ -136,8 +137,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 						tilemap[px+(py*24)]=10;
 				}
 		}else if(state==2){
-				state=1;
-				initGameBoard();
+				state=0;
 		}
 	
 		// Redraw Graphics
@@ -145,7 +145,10 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-		if(state==1){
+	if(state==0){
+			level++;
+			if(level==5) level=0;
+	}else	if(state==1){
 				if(pdx==1){
 						pdx=0;
 						pdy=1;
@@ -164,7 +167,10 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-		if(state==1){
+	if(state==0){
+			level--;
+			if(level==-1) level=4;
+	}else if(state==1){
 			if(pdx==1){
 						pdx=0;
 						pdy=-1;
@@ -296,8 +302,8 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
 	// Deallocate tiles
-	for(int i=0;i<34;i++){
-			 gbitmap_destroy(t_image[bitmapcnt]);
+	for(int i=0;i<bitmapcnt;i++){
+			 gbitmap_destroy(t_image[i]);
 	}
 	
 	// Deallocate bitmap
