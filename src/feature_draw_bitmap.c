@@ -217,6 +217,10 @@ static void click_config_provider(void *context) {
 // Called when the graphics need to be updated
 //---------------------------------------------------------------------------------//
 
+//  graphics_context_set_compositing_mode(ctx, GCompOpSet);
+//  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+//  graphics_draw_bitmap_in_rect(ctx, s_bitmap, gbitmap_get_bounds(s_bitmap));
+
 static void layer_update_callback(Layer *layer, GContext* ctx) {
 	
 	if(state==0){
